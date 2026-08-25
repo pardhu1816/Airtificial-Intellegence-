@@ -1,0 +1,31 @@
+def vacuum_cleaner(location, status_a, status_b):
+    # Environment state dictionary
+    environment = {'A': status_a, 'B': status_b}
+    
+    print(f"Initial State: Vacuum at {location} | Room A: {status_a} | Room B: {status_b}\n")
+
+    steps = 0
+    while 'Dirty' in environment.values():
+        print(f"Location: Room {location} | Status: {environment[location]}")
+
+        # Action 1: Clean if Dirty
+        if environment[location] == 'Dirty':
+            print(f"-> Action: SUCK (Cleaned Room {location})")
+            environment[location] = 'Clean'
+        # Action 2: Move if already Clean
+        else:
+            if location == 'A':
+                print("-> Action: Move RIGHT to Room B")
+                location = 'B'
+            else:
+                print("-> Action: Move LEFT to Room A")
+                location = 'A'
+        
+        steps += 1
+        print("-" * 35)
+
+    print(f"Goal Reached! Both rooms are clean in {steps} steps.")
+
+# Run
+# Arguments: (initial_location, room_A_status, room_B_status)
+vacuum_cleaner('A', 'Dirty', 'Dirty')
