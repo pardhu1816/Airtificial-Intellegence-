@@ -1,0 +1,29 @@
+min_cost = float('inf')
+    best_path = []
+
+    for perm in itertools.permutations(cities):
+        current_path = [0] + list(perm) + [0]
+        current_cost = 0
+
+        for i in range(len(current_path) - 1):
+            u = current_path[i]
+            v = current_path[i + 1]
+            current_cost += distance_matrix[u][v]
+
+        if current_cost < min_cost:
+            min_cost = current_cost
+            best_path = current_path
+
+    return best_path, min_cost
+
+# Distance matrix between 4 cities (0, 1, 2, 3)
+distances = [
+    [0, 10, 15, 20],
+    [10, 0, 35, 25],
+    [15, 35, 0, 30],
+    [20, 25, 30, 0]
+]
+
+path, cost = travelling_salesman(distances)
+print(f"Optimal Path: {path}")
+print(f"Minimum Distance: {cost}")
