@@ -1,0 +1,28 @@
+from collections import deque
+
+def solve_jugs():
+    queue = deque([((0, 0), [])])
+    visited = {(0, 0)}
+
+    while queue:
+        (a, b), path = queue.popleft()
+        if a == 2 or b == 2:
+            return path + [(a, b)]
+
+        p_ab = min(a, 3 - b)
+        p_ba = min(b, 4 - a)
+        moves = [
+            (4, b), (a, 3),            # Fill A, Fill B
+            (0, b), (a, 0),            # Empty A, Empty B
+            (a - p_ab, b + p_ab),      # Pour A -> B
+            (a + p_ba, b - p_ba)       # Pour B -> A
+        ]
+
+        for state in moves:
+            if state not in visited:
+                visited.add(state)
+                queue.append((state, path + [(a, b)]))
+
+path = solve_jugs()
+for step in path:
+    print(f"Jug A: {step[0]}L | Jug B: {step[1]}L")
