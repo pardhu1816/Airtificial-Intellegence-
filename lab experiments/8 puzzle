@@ -1,0 +1,44 @@
+from collections import deque
+
+GOAL = (1, 2, 3, 4, 5, 6, 7, 8, 0)
+
+def get_neighbors(state):
+    neighbors = []
+    idx = state.index(0)  # 0 is the empty tile
+    r, c = divmod(idx, 3)
+    
+    # Check UP, DOWN, LEFT, RIGHT moves
+    moves = [(-1, 0), (1, 0), (0, -1), (0, 1)]
+    for dr, dc in moves:
+        nr, nc = r + dr, c + dc
+        if 0 <= nr < 3 and 0 <= nc < 3:
+            n_idx = nr * 3 + nc
+            new_state = list(state)
+            new_state[idx], new_state[n_idx] = new_state[n_idx], new_state[idx]
+            neighbors.append(tuple(new_state))
+    return neighbors
+
+def solve_puzzle(start):
+    queue = deque([(start, [start])])
+    visited = {start}
+
+    while queue:
+        current, path = queue.popleft()
+        if current == GOAL:
+            return path
+
+        for nxt in get_neighbors(current):
+            if nxt not in visited:
+                visited.add(nxt)
+                queue.append((nxt, path + [nxt]))
+
+# Execute
+start_board = (1, 2, 3, 4, 0, 6, 7, 5, 8)
+path = solve_puzzle(start_board)
+
+print("--- 8-PUZZLE SOLUTION ---")
+print(f"Solved in {len(path) - 1} steps:\n")
+for step in path:
+    for i in range(0, 9, 3):
+        print(step[i], step[i+1], step[i+2])
+    print("---")
