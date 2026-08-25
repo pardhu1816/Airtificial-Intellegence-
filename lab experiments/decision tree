@@ -1,0 +1,78 @@
+import numpy as np
+
+class Node:
+    def __init__(self, feature_index=None, threshold=None, left=None, right=None, value=None):
+        self.feature_index = feature_index
+        self.threshold = threshold
+        self.left = left
+        self.right = right
+        self.value = value
+
+class DecisionTree:
+    def __init__(self, min_samples_split=2, max_depth=2):
+        self.root = None
+        self.min_samples_split = min_samples_split
+        self.max_depth = max_depth
+
+    def build_tree(self, X, y, depth=0):
+        num_samples, num_features = np.shape(X)
+        
+        if num_samples >= self.min_samples_split and depth <= self.max_depth:
+            best_feature, best_thresh = self.get_best_split(X, y, num_features)
+            if best_feature is not None:
+                left_indices = np.where(X[:, best_feature] <= best_thresh)[0]
+                right_indices = np.where(X[:, best_feature] > best_thresh)[0]
+                
+                left_subtree = self.build_tree(X[left_indices], y[left_indices], depth + 1)
+                right_subtree = self.build_tree(X[right_indices], y[right_indices], depth + 1)
+                
+                return Node(best_feature, best_thresh, left_subtree, right_subtree)
+        
+        leaf_value = self.calculate_leaf_value(y)
+        return Node(value=leaf_value)
+
+    def get_best_split(self, X, y, num_features):
+        best_gini = float("inf")
+        best_feature, best_thresh = None, None
+        
+        for feature_index in range(num_features):
+            thresholds = np.unique(X[:, feature_index])
+            for threshold in thresholds:
+                left_y = y[X[:, feature_index] <= threshold]
+                right_y = y[X[:, feature_index] > threshold]
+                
+                if len(left_y) == 0 or len(right_y) == 0:
+                    continue
+                
+                gini = self.calculate_gini(left_y, right_y)
+                if gini < best_gini:
+                    best_gini = gini
+                    best_feature = feature_index
+                    best_thresh = threshold
+                    
+        return best_feature, best_thresh
+
+    def calculate_gini(self, left_y, right_y):
+        def gini_impurity(y):
+            classes, counts = np.unique(y, return_counts=True)
+            probabilities = counts / len(y)
+            return 1.0 - np.sum(probabilities ** 2)
+            
+        n = len(left_y) + len(right_y)
+        return (len(left_y) / n) * gini_impurity(left_y) + (len(right_y) / n) * gini_impurity(right_y)
+
+    def calculate_leaf_value(self, y):
+        y = list(y)
+        return max(set(y), key=y.count)
+
+    def predict(self, X):
+        return np.array([self.make_prediction(x, self.root) for x in X])
+
+    def make_prediction(self, x, tree):
+        if tree.value is not None:
+            return tree.value
+        feature_val = x[tree.feature_index]
+        if feature_val <= tree.threshold:
+            return self.make_prediction(x, tree.left)
+        else:
+            return self.make_prediction(x, tree.right)
