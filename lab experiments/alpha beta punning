@@ -1,0 +1,24 @@
+def minimax_alpha_beta(depth, node_index, maximizing_player, values, alpha, beta, target_depth):
+    if depth == target_depth:
+        return values[node_index]
+
+    if maximizing_player:
+        best = -float('inf')
+        for i in range(2): # Assuming a binary game tree
+            val = minimax_alpha_beta(depth + 1, node_index * 2 + i, False, values, alpha, beta, target_depth)
+            best = max(best, val)
+            alpha = max(alpha, best)
+            
+            if beta <= alpha:
+                break
+        return best
+    else:
+        best = float('inf')
+        for i in range(2):
+            val = minimax_alpha_beta(depth + 1, node_index * 2 + i, True, values, alpha, beta, target_depth)
+            best = min(best, val)
+            beta = min(beta, best)
+            
+            if beta <= alpha:
+                break
+        return best
